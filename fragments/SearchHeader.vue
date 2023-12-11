@@ -8,12 +8,14 @@
           colorTextPlaceholder: 'rgb(108 114 127)',
         },
       }"
-      ><a-input-search
+      ><a-input
         v-model:value="phrase"
         size="large"
         placeholder="Search by Name, Region, Subregion"
         class="bg-shark-light min-h-[44px] flex items-center max-w-[340px] rounded-xl pb-.5"
-      />
+      >
+        <template #prefix><i-search class="h-6" /></template>
+      </a-input>
     </a-config-provider>
   </div>
 </template>

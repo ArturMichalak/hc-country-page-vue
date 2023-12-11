@@ -6,7 +6,14 @@
         <SortCountries ref="sort" />
       </form>
       <div class="relative overflow-auto flex-grow">
-        <a-table v-if="data !== null" sticky class="absolute" :data-source="source" :columns="columns">
+        <a-table
+          v-if="data !== null"
+          sticky
+          class="absolute"
+          :data-source="source"
+          :columns="columns"
+          :custom-row="customRow"
+        >
           <template #headerCell="{ column }">
             <template v-if="column.key === 'area'"> Area (km<sup>2</sup>) </template>
           </template>
@@ -25,9 +32,10 @@
 </template>
 
 <script setup lang="ts">
+import _ from 'lodash'
 import { ref, computed } from 'vue'
-import type { CountryDetails } from '@/models/country-details'
 
+import type { CountryDetails } from '@/models/country-details'
 export type SortKeys = 'name' | 'population' | 'area' | 'region'
 
 const sort = ref<{ key: SortKeys }>({ key: 'population' })
@@ -40,6 +48,13 @@ const columns = [
   { dataIndex: 'area', key: 'area' },
   { title: 'Region', dataIndex: 'region' },
 ]
+
+const customRow = (record: { name: string }) => ({
+  onClick: () => {
+    navigateTo(`/${_.kebabCase(record.name)}`)
+  },
+})
+
 const { data } = await useAsyncData<CountryDetails[]>('countries', () => $fetch('https://restcountries.com/v3.1/all'))
 
 const formattedData = reactive(

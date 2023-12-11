@@ -15,6 +15,10 @@ export default defineNuxtConfig({
     ['@nuxtjs/google-fonts', { families: { 'Be Vietnam Pro': true } }],
     ['@nuxtjs/eslint-module', { lintOnStart: false }],
   ],
+  svgo: {
+    defaultImport: 'component',
+    componentPrefix: 'i',
+  },
   tailwindcss: {
     configPath: 'tailwind.config',
     viewer: false,
