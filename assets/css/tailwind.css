@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --c-shark: 27 29 31;
+    --c-shark-light: 40 43 48;
+    --c-pale-sky: 108 114 127;
+    --c-iron: 210 213 218;
+    --c-cornflower-blue: 78 128 238;
+}
+
+h1 {
+    @apply text-[32px] leading-8 font-semibold
+}
+
+small {
+    @apply text-xs font-bold
+}
