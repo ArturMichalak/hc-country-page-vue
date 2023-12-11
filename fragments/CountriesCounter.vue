@@ -3,10 +3,5 @@
 </template>
 
 <script setup lang="ts">
-const props = defineProps({
-  countriesCount: {
-    type: Number,
-    required: true,
-  },
-})
+const props = defineProps<{ countriesCount: number }>()
 </script>

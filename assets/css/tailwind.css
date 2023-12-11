@@ -10,10 +10,14 @@
     --c-cornflower-blue: 78 128 238;
 }
 
+span, label {
+    @apply font-semibold
+}
+
 h1 {
     @apply text-[32px] leading-8 font-semibold
 }
 
-small {
-    @apply text-xs font-bold
+small, label {
+    @apply text-xs leading-3
 }

@@ -1,52 +1,37 @@
 <template>
   <MainCard wide>
-    <div class="flex justify-between">
-      <CountriesCounter :countries-count="source.length" />
-      <div><a-input-search placeholder="Search by Name, Region, Subregion" /></div>
-    </div>
+    <SearchHeader ref="search" :countries-length="source.length" />
     <div class="flex flex-grow">
       <form class="max-w-[260px] flex-grow mr-8 flex flex-col gap-8">
-        <a-select ref="select" v-model:value="sortKey">
-          <a-select-option value="population">Population</a-select-option>
-          <a-select-option value="area">Area</a-select-option>
-          <a-select-option value="region">Region</a-select-option>
-          <a-select-option value="name">Name</a-select-option>
-        </a-select>
+        <SortCountries ref="sort" />
       </form>
       <div class="relative overflow-auto flex-grow">
-        <a-config-provider
-          v-if="data !== null"
-          :theme="{
-            token: {
-              colorBgBase: 'rgb(27 29 31)',
-              colorTextBase: 'rgb(108 114 127)',
-            },
-          }"
-        >
-          <a-table sticky class="absolute" :data-source="source" :columns="columns">
-            <template #headerCell="{ column }">
-              <template v-if="column.key === 'area'"> Area (km<sup>2</sup>) </template>
-            </template>
+        <a-table v-if="data !== null" sticky class="absolute" :data-source="source" :columns="columns">
+          <template #headerCell="{ column }">
+            <template v-if="column.key === 'area'"> Area (km<sup>2</sup>) </template>
+          </template>
 
-            <template #bodyCell="{ column, record }">
-              <template v-if="column.key === 'flag'">
-                <i class="inline-block not-italic text-[50px] leading-[38px]">
-                  {{ record.flag }}
-                </i>
-              </template>
+          <template #bodyCell="{ column, record }">
+            <template v-if="column.key === 'flag'">
+              <i class="inline-block not-italic text-[50px] leading-[38px]">
+                {{ record.flag }}
+              </i>
             </template>
-          </a-table>
-        </a-config-provider>
+          </template>
+        </a-table>
       </div>
     </div>
   </MainCard>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import type { CountryDetails } from '@/models/country-details'
 
-const sortKey = ref('population')
+export type SortKeys = 'name' | 'population' | 'area' | 'region'
+
+const sort = ref<{ key: SortKeys }>({ key: 'population' })
+const search = ref<{ phrase: string }>({ phrase: '' })
 
 const columns = [
   { title: 'Flag', dataIndex: 'flag', key: 'flag' },
@@ -57,14 +42,39 @@ const columns = [
 ]
 const { data } = await useAsyncData<CountryDetails[]>('countries', () => $fetch('https://restcountries.com/v3.1/all'))
 
-const source =
+const formattedData = reactive(
   (data.value !== null &&
-    data.value.map(({ name, flag, area, population, region }) => ({
+    data.value.map(({ name, flag, area, population, region, subregion }) => ({
       name: name.common || name.official,
       flag,
       area,
       population,
       region,
+      subregion,
+      commonName: name.common,
+      officialName: name.official,
     }))) ||
-  []
+    []
+)
+
+const source = computed(() => {
+  const searchWords = search.value.phrase.toLocaleLowerCase().split(' ')
+  const source = formattedData.filter((r) =>
+    searchWords.some(
+      (w) =>
+        r.commonName.toLocaleLowerCase().includes(w) ||
+        r.officialName.toLocaleLowerCase().includes(w) ||
+        r.region.toLocaleLowerCase().includes(w) ||
+        r.subregion?.toLocaleLowerCase().includes(w)
+    )
+  )
+  source.sort((a, b) => (a.population < b.population ? 1 : -1))
+  const sortKey = sort.value?.key as unknown as SortKeys
+  if (sortKey === 'area') {
+    source.sort((a, b) => (a[sortKey] < b[sortKey] ? 1 : -1))
+  } else if (sortKey !== 'population') {
+    source.sort((a, b) => (a[sortKey] > b[sortKey] ? 1 : -1))
+  }
+  return source
+})
 </script>
