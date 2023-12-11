@@ -7,6 +7,8 @@ export default {
     './fragments/**/*.{js,ts,vue,mdx}',
     './layouts/**/*.{js,ts,vue,mdx}',
     './pages/**/*.{js,ts,vue,mdx}',
+    './nuxt.config.{js,ts}',
+    './error.vue',
     './app.vue',
   ],
   theme: {
